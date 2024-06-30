@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="calculator">
+        <div class="calculator-display" id="display">0</div>
+        <div class="calculator-keys">
+            <button class="key" data-action="clear">AC</button>
+            <button class="key" data-action="delete">DEL</button>
+            <button class="key" data-action="divide">/</button>
+            <button class="key">7</button>
+            <button class="key">8</button>
+            <button class="key">9</button>
+            <button class="key" data-action="multiply">*</button>
+            <button class="key">4</button>
+            <button class="key">5</button>
+            <button class="key">6</button>
+            <button class="key" data-action="subtract">-</button>
+            <button class="key">1</button>
+            <button class="key">2</button>
+            <button class="key">3</button>
+            <button class="key" data-action="add">+</button>
+            <button class="key">0</button>
+            <button class="key">.</button>
+            <button class="key" data-action="calculate">=</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const display = document.getElementById('display');
+            const keys = document.querySelectorAll('.key');
+            let currentInput = '0';
+            let operator = '';
+            let firstValue = '';
+            let secondValue = '';
+
+            function updateDisplay(value) {
+                display.textContent = value;
+            }
+
+            function clearCalculator() {
+                currentInput = '0';
+                operator = '';
+                firstValue = '';
+                secondValue = '';
+                updateDisplay(currentInput);
+            }
+
+            function deleteLastInput() {
+                if (currentInput.length > 1) {
+                    currentInput = currentInput.slice(0, -1);
+                } else {
+                    currentInput = '0';
+                }
+                updateDisplay(currentInput);
+            }
+
+            function inputDigit(digit) {
+                if (currentInput === '0') {
+                    currentInput = digit;
+                } else {
+                    currentInput += digit;
+                }
+                updateDisplay(currentInput);
+            }
+
+            function inputDecimal() {
+                if (!currentInput.includes('.')) {
+                    currentInput += '.';
+                }
+                updateDisplay(currentInput);
+            }
+
+            function handleOperator(nextOperator) {
+                if (operator && currentInput !== '') {
+                    secondValue = currentInput;
+                    const result = calculate(firstValue, secondValue, operator);
+                    updateDisplay(result);
+                    firstValue = result;
+                    currentInput = '';
+                } else {
+                    firstValue = currentInput;
+                    currentInput = '';
+                }
+                operator = nextOperator;
+            }
+
+            function calculate(first, second, operator) {
+                first = parseFloat(first);
+                second = parseFloat(second);
+                if (operator === '+') return first + second;
+                if (operator === '-') return first - second;
+                if (operator === '*') return first * second;
+                if (operator === '/') return first / second;
+                return second;
+            }
+
+            keys.forEach(key => {
+                key.addEventListener('click', () => {
+                    const action = key.dataset.action;
+                    const keyContent = key.textContent;
+
+                    switch (action) {
+                        case 'clear':
+                            clearCalculator();
+                            break;
+                        case 'delete':
+                            deleteLastInput();
+                            break;
+                        case 'add':
+                        case 'subtract':
+                        case 'multiply':
+                        case 'divide':
+                            handleOperator(action === 'add' ? '+' : action === 'subtract' ? '-' : action === 'multiply' ? '*' : '/');
+                            break;
+                        case 'calculate':
+                            if (firstValue && operator) {
+                                secondValue = currentInput;
+                                const result = calculate(firstValue, secondValue, operator);
+                                updateDisplay(result);
+                                currentInput = result;
+                                firstValue = '';
+                                secondValue = '';
+                                operator = '';
+                            }
+                            break;
+                        default:
+                            if (keyContent === '.') {
+                                inputDecimal();
+                            } else {
+                                inputDigit(keyContent);
+                            }
+                            break;
+                    }
+                });
+            });
+
+            clearCalculator();
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
